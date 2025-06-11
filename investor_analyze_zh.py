@@ -27,7 +27,7 @@ except Exception as e:
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SMTP_USERNAME = "kata.chatbot@gmail.com" # You can change this if you have a different sender email
+SMTP_USERNAME = "kata.chatbot@gmail.com"
 
 # --- 辅助函数 (Helper Functions) ---
 def compute_age(dob_str):
@@ -49,7 +49,7 @@ def get_openai_response(prompt, temp=0.85):
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=temp,
-            max_tokens=500
+            max_tokens=600 
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -76,11 +76,11 @@ def send_email(html_body, subject):
 
 # --- 图表与摘要生成 (Chart and Summary Generation) ---
 def generate_chart_metrics():
-    # These labels are now in Chinese for the chart
+    # Labels converted to Simplified Chinese
     return [
-        {"title": "市场定位 (Market Positioning)", "labels": ["品牌认知度 (Brand Recall)", "客户契合度 (Client Fit Clarity)", "声誉稳固性 (Reputation Stickiness)"], "values": [random.randint(70, 90), random.randint(65, 85), random.randint(70, 90)]},
-        {"title": "投资者吸引力 (Investor Appeal)", "labels": ["叙事信心 (Narrative Confidence)", "规模化模型 (Scalability Model)", "信任凭证 (Proof of Trust)"], "values": [random.randint(70, 85), random.randint(60, 80), random.randint(75, 90)]},
-        {"title": "战略执行力 (Strategic Execution)", "labels": ["合作准备度 (Partnership Readiness)", "高端渠道杠杆 (Premium Channel Leverage)", "领导力形象 (Leadership Presence)"], "values": [random.randint(65, 85), random.randint(65, 85), random.randint(75, 90)]}
+        {"title": "市场定位", "labels": ["品牌认知", "客户契合", "声誉稳固"], "values": [random.randint(70, 90), random.randint(65, 85), random.randint(70, 90)]},
+        {"title": "投资者吸引力", "labels": ["叙事信心", "规模化模型", "信任凭证"], "values": [random.randint(70, 85), random.randint(60, 80), random.randint(75, 90)]},
+        {"title": "战略执行力", "labels": ["合作准备", "高端渠道", "领导形象"], "values": [random.randint(65, 85), random.randint(65, 85), random.randint(75, 90)]}
     ]
 
 def generate_chart_html(metrics):
@@ -91,7 +91,7 @@ def generate_chart_html(metrics):
         for j, (label, val) in enumerate(zip(metric['labels'], metric['values'])):
             html += (
                 f"<div style='display:flex;align-items:center;margin-bottom:8px;'>"
-                f"<span style='width:220px; font-size: 15px;'>{label}</span>"
+                f"<span style='width:120px; font-size: 15px;'>{label}</span>" # Adjusted width for shorter labels
                 f"<div style='flex:1;background:#eee;border-radius:5px;overflow:hidden;'>"
                 f"<div style='width:{val}%;height:14px;background:{colors[j % len(colors)]};'></div></div>"
                 f"<span style='margin-left:10px; font-size: 15px;'>{val}%</span></div>"
@@ -100,7 +100,7 @@ def generate_chart_html(metrics):
     return html
 
 def build_dynamic_summary(age, experience, industry, country, metrics, challenge, context, target_profile):
-    # Translated maps to match the HTML form's 'value' attributes
+    # Maps updated to Simplified Chinese to match form values
     industry_map = {
         "保险": "竞争激烈的保险领域", "房地产": "充满活力的房地产市场",
         "金融": "高风险的金融世界", "科技": "快速发展的科技行业",
@@ -110,9 +110,9 @@ def build_dynamic_summary(age, experience, industry, country, metrics, challenge
     industry_narrative = industry_map.get(industry, f"于 {industry} 领域")
 
     challenge_narrative_map = {
-        "需要新资金": "寻求新资本以驱动下一阶段的增长",
-        "扩张策略不明确": "规划一条清晰且具防御性的扩张路径",
-        "缺乏投资者信心": "为投资者建立一个令人信服且有证据支持的案例",
+        "寻求新资金": "寻求新资本以驱动下一阶段的增长",
+        "扩张策略不明": "规划一条清晰且具防御性的扩张路径",
+        "投资信心不足": "为投资者建立一个令人信服且有证据支持的案例",
         "品牌定位薄弱": "强化品牌叙事和市场定位的战略要务"
     }
     challenge_narrative = challenge_narrative_map.get(challenge, f"解决 {challenge} 的主要挑战")
@@ -129,14 +129,13 @@ def build_dynamic_summary(age, experience, industry, country, metrics, challenge
     partn, premium, leader = metrics[2]["values"]
 
     summary_html = (
-        "<br><div style='font-size:24px;font-weight:bold;'>🧠 战略总结:</div><br>"
-        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>{chosen_opening} 这份报告反映了一个关键时刻，焦点转向{challenge_narrative}。数据显示，您拥有{brand}%的强大品牌认知度，意味着已建立一定的市场影响力。 "
+        "<br><div style='font-size:24px;font-weight:bold;'>🧠 战略摘要</div><br>"
+        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>{chosen_opening} 这份报告反映了一个关键时刻，焦点转向{challenge_narrative}。数据显示，您拥有{brand}%的强大品牌认知，意味着已建立一定的市场影响力。 "
         f"然而，分析也指出了一个机会：需要提升价值主张的清晰度（客户契合度为{fit}%），并确保您的专业声誉具有持久的影响力（声誉稳固性为{stick}%）。目标是从简单的被认知，过渡到能产生共鸣的影响力。</p>"
         f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>在{country}的投资环境中，一个引人入胜的故事至关重要。{conf}%的叙事信心表明，您的核心专业叙事元素是强有力的。关键似乎在于解决规模化模型的问题，目前为{scale}%。 "
         f"这表明，优化“如何做”——即阐明一个清晰、可复制的增长模型——可能会显著提升投资者吸引力。令人鼓舞的是，{trust}%的信任凭证得分显示，过往的记录是坚实的资产，为构建未来引人注目的叙事提供了信誉基础。</p>"
-        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>战略的最终评判标准是执行力。{partn}%的合作准备度得分，标志着强大的协作能力——这是吸引特定类型高水平合作伙伴或投资者时的关键要素。 "
-        f"此外，{premium}%的高端渠道杠杆揭示了提升品牌定位的未开发潜力。再加上{leader}%的稳固领导力形象，信息非常明确：您这样的背景已被视为可信。下一步是战略性地占据能反映您全部价值的高影响力空间。</p>"
-        # THE FIX IS HERE: The stray backtick ` before this line has been removed.
+        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>战略的最终评判标准是执行力。{partn}%的合作准备得分，标志着强大的协作能力——这是吸引特定类型高水平合作伙伴或投资者时的关键要素。 "
+        f"此外，{premium}%的高端渠道使用率揭示了提升品牌定位的未开发潜力。再加上{leader}%的稳固领导形象，信息非常明确：您这样的背景已被视为可信。下一步是战略性地占据能反映您全部价值的高影响力空间。</p>"
         f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>将这样的资料与新加坡、马来西亚和台湾的同行进行基准比较，不仅是衡量现状，更是为了揭示战略优势。 "
         f"数据表明，驱动这一战略焦点的专业直觉通常是正确的。对于处于此阶段的专业人士来说，前进的道路通常在于信息、模型和市场的精准对齐。本分析可作为一个框架，为您将当前势头转化为决定性突破提供所需的清晰度。</p>"
     )
@@ -182,7 +181,7 @@ def investor_analyze():
         tips_text = get_openai_response(prompt)
         tips_block = ""
         if tips_text:
-            tips_block = "<br><div style='font-size:24px;font-weight:bold;'>💡 创新建议:</div><br>" + \
+            tips_block = "<br><div style='font-size:24px;font-weight:bold;'>💡 创新建议</div><br>" + \
                          "".join(f"<p style='font-size:16px; line-height:1.6; margin-bottom: 1em;'>{line.strip()}</p>" for line in tips_text.splitlines() if line.strip())
         else:
             tips_block = "<p style='color:red;'>⚠️ 暂时无法生成创新建议。</p>"
@@ -193,7 +192,7 @@ def investor_analyze():
             "<strong>📊 AI 洞察来源:</strong><ul style='margin-top:10px;margin-bottom:10px;padding-left:20px;line-height:1.7;'>"
             "<li>来自新加坡、马来西亚和台湾的匿名专业人士数据</li>"
             "<li>来自 OpenAI 和全球市场的投资者情绪模型及趋势基准</li></ul>"
-            "<p style='margin-top:10px;line-height:1.7;'>所有数据均符合个人资料保护法(PDPA)且不会被储存。我们的 AI 系统在检测具统计意义的模式时，不会引用任何个人记录。</p>"
+            "<p style='margin-top:10px;line-height:1.7;'>所有数据均符合个人数据保护法(PDPA)且不会被储存。我们的 AI 系统在检测具统计意义的模式时，不会引用任何个人记录。</p>"
             "<p style='margin-top:10px;line-height:1.7;'><strong>附言:</strong> 这份初步洞察仅仅是个开始。一份更个性化、数据更具体的报告——反映您提供的完整信息——将在 <strong>24 至 48 小时</strong> 内准备并发送到收件人的邮箱。"
             "这将使我们的 AI 系统能够将您的资料与细微的区域和行业特定基准进行交叉引用，确保提供针对确切挑战的更精准建议。"
             "如果希望尽快进行对话，我们很乐意在您方便的时间安排一次 <strong>15 分钟的通话</strong>。 🎯</p></div>"
@@ -209,14 +208,14 @@ def investor_analyze():
             f"<strong>联系电话:</strong> {contact_number}<br>"
             f"<strong>国家/地区:</strong> {country}<br>"
             f"<strong>公司名称:</strong> {company}<br>"
-            f"<strong>职位:</strong> {role}<br>"
+            f"<strong>当前职位:</strong> {role}<br>"
             f"<strong>经验年限:</strong> {experience}<br>"
-            f"<strong>行业:</strong> {industry}<br>"
+            f"<strong>所属行业:</strong> {industry}<br>"
             f"<strong>主要挑战:</strong> {challenge}<br>"
             f"<strong>背景简介:</strong> {context}<br>"
             f"<strong>目标画像:</strong> {target_profile}<br>"
             f"<strong>推荐人:</strong> {advisor}<br>"
-            f"<strong>电子邮件:</strong> {email}</div><hr>"
+            f"<strong>电子邮箱:</strong> {email}</div><hr>"
         )
 
         email_html = f"<h1>新的投资者洞察提交</h1>" + details_html + title + chart_html + summary_html + tips_block + footer
