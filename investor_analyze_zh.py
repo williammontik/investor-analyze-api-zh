@@ -11,17 +11,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
 
-# --- 初始化 (Initialization) ---
+# --- Initialization ---
 app = Flask(__name__)
 CORS(app)
 logging.basicConfig(level=logging.INFO)
 
-# --- 配置 (Configuration) ---
+# --- Configuration ---
 try:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 except Exception as e:
-    logging.error(f"从环境变量初始化配置失败: {e}")
+    logging.error(f"Failed to initialize configuration from environment variables: {e}")
     client = None
     SMTP_PASSWORD = None
 
@@ -29,7 +29,7 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SMTP_USERNAME = "kata.chatbot@gmail.com"
 
-# --- 辅助函数 (Helper Functions) ---
+# --- Helper Functions ---
 def compute_age(dob_str):
     try:
         birth_date = parser.parse(dob_str)
@@ -37,28 +37,28 @@ def compute_age(dob_str):
         age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
         return age
     except (ValueError, TypeError):
-        logging.warning(f"无法解析出生日期: {dob_str}. 返回年龄 0.")
+        logging.warning(f"Could not parse DOB: {dob_str}. Returning age 0.")
         return 0
 
 def get_openai_response(prompt, temp=0.85):
     if not client:
-        logging.error("OpenAI 客户端未初始化。")
+        logging.error("OpenAI client not initialized.")
         return None
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=temp,
-            max_tokens=600 
+            max_tokens=600
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        logging.error(f"OpenAI API 错误: {e}")
+        logging.error(f"OpenAI API error: {e}")
         return None
 
 def send_email(html_body, subject):
     if not SMTP_PASSWORD:
-        logging.error("SMTP 密码未配置。无法发送邮件。")
+        logging.error("SMTP password not configured. Cannot send email.")
         return
     msg = MIMEText(html_body, 'html', 'utf-8')
     msg['Subject'] = subject
@@ -70,13 +70,13 @@ def send_email(html_body, subject):
             server.starttls()
             server.login(SMTP_USERNAME, SMTP_PASSWORD)
             server.send_message(msg)
-            logging.info("邮件发送成功。")
+            logging.info("Email sent successfully.")
     except Exception as e:
-        logging.error(f"邮件发送失败: {e}")
+        logging.error(f"Email sending failed: {e}")
 
-# --- 图表与摘要生成 (Chart and Summary Generation) ---
+# --- Chart and Summary Generation ---
 def generate_chart_metrics():
-    # Labels converted to Simplified Chinese
+    # Labels in Simplified Chinese
     return [
         {"title": "市场定位", "labels": ["品牌认知", "客户契合", "声誉稳固"], "values": [random.randint(70, 90), random.randint(65, 85), random.randint(70, 90)]},
         {"title": "投资者吸引力", "labels": ["叙事信心", "规模化模型", "信任凭证"], "values": [random.randint(70, 85), random.randint(60, 80), random.randint(75, 90)]},
@@ -91,7 +91,7 @@ def generate_chart_html(metrics):
         for j, (label, val) in enumerate(zip(metric['labels'], metric['values'])):
             html += (
                 f"<div style='display:flex;align-items:center;margin-bottom:8px;'>"
-                f"<span style='width:120px; font-size: 15px;'>{label}</span>" # Adjusted width for shorter labels
+                f"<span style='width:120px; font-size: 15px;'>{label}</span>"
                 f"<div style='flex:1;background:#eee;border-radius:5px;overflow:hidden;'>"
                 f"<div style='width:{val}%;height:14px;background:{colors[j % len(colors)]};'></div></div>"
                 f"<span style='margin-left:10px; font-size: 15px;'>{val}%</span></div>"
@@ -100,7 +100,7 @@ def generate_chart_html(metrics):
     return html
 
 def build_dynamic_summary(age, experience, industry, country, metrics, challenge, context, target_profile):
-    # Maps updated to Simplified Chinese to match form values
+    # Maps in Simplified Chinese
     industry_map = {
         "保险": "竞争激烈的保险领域", "房地产": "充满活力的房地产市场",
         "金融": "高风险的金融世界", "科技": "快速发展的科技行业",
@@ -119,7 +119,7 @@ def build_dynamic_summary(age, experience, industry, country, metrics, challenge
 
     opening_templates = [
         f"对于一位在{country}{industry_narrative}深耕约{experience}年的专业人士而言，到达战略十字路口不仅是常态，更是雄心的体现。",
-        f"在{country}的{industry_narrative}拥有{experience}年的职业生涯，是适应能力和专业知识的明证。这段旅程自然会引向关键的转折与反思时刻。",
+        f"一位拥有{experience}年{country}{industry_narrative}经验的专业人士，其职业生涯是适应能力和专业知识的明证，并自然地引向关键的转折与反思时刻。",
         f"在{age}岁的年纪，于{country}的{industry_narrative}导航{experience}年，培养了独特的视角，尤其是在面对职业成长的下一阶段时。"
     ]
     chosen_opening = random.choice(opening_templates)
@@ -128,28 +128,29 @@ def build_dynamic_summary(age, experience, industry, country, metrics, challenge
     conf, scale, trust = metrics[1]["values"]
     partn, premium, leader = metrics[2]["values"]
 
+    # --- TEXT REWRITTEN TO THIRD-PERSON PERSPECTIVE ---
     summary_html = (
         "<br><div style='font-size:24px;font-weight:bold;'>🧠 战略摘要</div><br>"
-        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>{chosen_opening} 这份报告反映了一个关键时刻，焦点转向{challenge_narrative}。数据显示，您拥有{brand}%的强大品牌认知，意味着已建立一定的市场影响力。 "
-        f"然而，分析也指出了一个机会：需要提升价值主张的清晰度（客户契合度为{fit}%），并确保您的专业声誉具有持久的影响力（声誉稳固性为{stick}%）。目标是从简单的被认知，过渡到能产生共鸣的影响力。</p>"
-        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>在{country}的投资环境中，一个引人入胜的故事至关重要。{conf}%的叙事信心表明，您的核心专业叙事元素是强有力的。关键似乎在于解决规模化模型的问题，目前为{scale}%。 "
+        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>{chosen_opening} 这份报告反映了一个关键时刻，其焦点转向{challenge_narrative}。数据显示，拥有此背景的专业人士具备{brand}%的强大品牌认知，意味着已建立一定的市场影响力。 "
+        f"然而，分析也指出了一个机会：需要提升价值主张的清晰度（客户契合度为{fit}%），并确保其专业声誉具有持久的影响力（声誉稳固性为{stick}%）。目标是从简单的被认知，过渡到能产生共鸣的影响力。</p>"
+        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>在{country}的投资环境中，一个引人入胜的故事至关重要。{conf}%的叙事信心表明，该人士的核心专业叙事元素是强有力的。关键似乎在于解决规模化模型的问题，目前为{scale}%。 "
         f"这表明，优化“如何做”——即阐明一个清晰、可复制的增长模型——可能会显著提升投资者吸引力。令人鼓舞的是，{trust}%的信任凭证得分显示，过往的记录是坚实的资产，为构建未来引人注目的叙事提供了信誉基础。</p>"
         f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>战略的最终评判标准是执行力。{partn}%的合作准备得分，标志着强大的协作能力——这是吸引特定类型高水平合作伙伴或投资者时的关键要素。 "
-        f"此外，{premium}%的高端渠道使用率揭示了提升品牌定位的未开发潜力。再加上{leader}%的稳固领导形象，信息非常明确：您这样的背景已被视为可信。下一步是战略性地占据能反映您全部价值的高影响力空间。</p>"
+        f"此外，{premium}%的高端渠道使用率揭示了提升品牌定位的未开发潜力。再加上{leader}%的稳固领导形象，信息非常明确：具备这样背景的专业人士已被视为可信。下一步是战略性地占据能反映其全部价值的高影响力空间。</p>"
         f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>将这样的资料与新加坡、马来西亚和台湾的同行进行基准比较，不仅是衡量现状，更是为了揭示战略优势。 "
-        f"数据表明，驱动这一战略焦点的专业直觉通常是正确的。对于处于此阶段的专业人士来说，前进的道路通常在于信息、模型和市场的精准对齐。本分析可作为一个框架，为您将当前势头转化为决定性突破提供所需的清晰度。</p>"
+        f"数据表明，驱动这一战略焦点的专业直觉通常是正确的。对于处于此阶段的专业人士来说，前进的道路通常在于信息、模型和市场的精准对齐。本分析可作为一个框架，为这类专业人士将当前势头转化为决定性突破提供所需的清晰度。</p>"
     )
     return summary_html
 
 
-# --- 主 Flask 路由 (Main Flask Route) ---
+# --- Main Flask Route ---
 @app.route("/investor_analyze", methods=["POST"])
 def investor_analyze():
     try:
         data = request.get_json(force=True)
-        logging.info(f"收到 POST 请求: {data.get('email', '未提供电子邮件')}")
+        logging.info(f"Received POST request: {data.get('email', 'No email provided')}")
 
-        # --- 数据提取 (Data Extraction) ---
+        # --- Data Extraction ---
         full_name = data.get("fullName", "N/A")
         chinese_name = data.get("chineseName", "N/A")
         dob_str = data.get("dob", "N/A")
@@ -165,19 +166,19 @@ def investor_analyze():
         advisor = data.get("advisor", "N/A")
         email = data.get("email", "N/A")
         
-        # --- 数据处理 (Data Processing) ---
+        # --- Data Processing ---
         age = compute_age(dob_str)
         chart_metrics = generate_chart_metrics()
         
-        # --- HTML 生成 (HTML Generation) ---
+        # --- HTML Generation ---
         title = "<h4 style='text-align:center;font-size:24px;'>🎯 AI 战略洞察</h4>"
         chart_html = generate_chart_html(chart_metrics)
         summary_html = build_dynamic_summary(age, experience, industry, country, chart_metrics, challenge, context, target_profile)
         
-        # --- AI 提示生成 (AI Tips Generation) ---
-        prompt = (f"基于一位在{country}{industry}领域拥有{experience}年经验的专业人士，"
-                  f"为新加坡、马来西亚和台湾的顶尖精英生成10条吸引投资者的实用建议，并附上表情符号。"
-                  f"语气应犀利、具有战略性且专业。请用简体中文回答。")
+        # --- AI Tips Generation (Prompt updated for third-person perspective) ---
+        prompt = (f"为一位在{country}{industry}领域拥有{experience}年经验的专业人士，生成10条吸引投资者的实用建议，并附上表情符号。"
+                  f"语气应犀利、具有战略性且专业。请用简体中文回答。"
+                  f"重点：请使用客观的第三人称视角撰写，例如使用“该类专业人士”或“他们”，绝对不要使用“您”或“您的”。")
         tips_text = get_openai_response(prompt)
         tips_block = ""
         if tips_text:
@@ -186,7 +187,7 @@ def investor_analyze():
         else:
             tips_block = "<p style='color:red;'>⚠️ 暂时无法生成创新建议。</p>"
 
-        # --- 页脚构建 (Footer Construction) ---
+        # --- Footer Construction (This part remains in 2nd person as it's a direct message from the service) ---
         footer = (
             "<div style='background-color:#f9f9f9;color:#333;padding:20px;border-left:6px solid #8C52FF; border-radius:8px;margin-top:30px;'>"
             "<strong>📊 AI 洞察来源:</strong><ul style='margin-top:10px;margin-bottom:10px;padding-left:20px;line-height:1.7;'>"
@@ -198,7 +199,7 @@ def investor_analyze():
             "如果希望尽快进行对话，我们很乐意在您方便的时间安排一次 <strong>15 分钟的通话</strong>。 🎯</p></div>"
         )
         
-        # --- 邮件正文构建 (Email Body Construction) ---
+        # --- Email Body Construction ---
         details_html = (
             f"<br><div style='font-size:14px;color:#333;line-height:1.6;'>"
             f"<h3 style='font-size:16px;'>📝 提交摘要</h3>"
@@ -226,11 +227,11 @@ def investor_analyze():
         return jsonify({"html_result": display_html})
 
     except Exception as e:
-        logging.error(f"在 /investor_analyze 中发生错误: {e}")
+        logging.error(f"An error occurred in /investor_analyze: {e}")
         traceback.print_exc()
-        return jsonify({"error": "发生内部服务器错误。"}), 500
+        return jsonify({"error": "An internal server error occurred."}), 500
 
-# --- 运行应用 (Run the App) ---
+# --- Run the App ---
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(debug=True, host='0.0.0.0', port=port)
