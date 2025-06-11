@@ -136,7 +136,8 @@ def build_dynamic_summary(age, experience, industry, country, metrics, challenge
         f"这表明，优化“如何做”——即阐明一个清晰、可复制的增长模型——可能会显著提升投资者吸引力。令人鼓舞的是，{trust}%的信任凭证得分显示，过往的记录是坚实的资产，为构建未来引人注目的叙事提供了信誉基础。</p>"
         f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>战略的最终评判标准是执行力。{partn}%的合作准备度得分，标志着强大的协作能力——这是吸引特定类型高水平合作伙伴或投资者时的关键要素。 "
         f"此外，{premium}%的高端渠道杠杆揭示了提升品牌定位的未开发潜力。再加上{leader}%的稳固领导力形象，信息非常明确：您这样的背景已被视为可信。下一步是战略性地占据能反映您全部价值的高影响力空间。</p>"
-`        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>将这样的资料与新加坡、马来西亚和台湾的同行进行基准比较，不仅是衡量现状，更是为了揭示战略优势。 "
+        # THE FIX IS HERE: The stray backtick ` before this line has been removed.
+        f"<p style='line-height:1.7; text-align:justify; margin-bottom: 1em;'>将这样的资料与新加坡、马来西亚和台湾的同行进行基准比较，不仅是衡量现状，更是为了揭示战略优势。 "
         f"数据表明，驱动这一战略焦点的专业直觉通常是正确的。对于处于此阶段的专业人士来说，前进的道路通常在于信息、模型和市场的精准对齐。本分析可作为一个框架，为您将当前势头转化为决定性突破提供所需的清晰度。</p>"
     )
     return summary_html
